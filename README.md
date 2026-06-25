@@ -1,130 +1,83 @@
-Black-Box Optimisation (BBO) Capstone Project
-1. Project Overview
-This project focuses on solving a Black-Box Optimisation (BBO) challenge, where the goal is to maximise a set of unknown functions using only observed input-output pairs.
+# Imperial College BBO Capstone Project
 
-The internal structure of these functions is completely hidden. Instead of having access to gradients or equations, the optimisation process relies entirely on iteratively querying the system and learning from the responses.
+This repository contains my final submission for the Imperial College Professional Certificate in Machine Learning and Artificial Intelligence Black-Box Optimisation (BBO) Capstone Project.
 
-The objective is to efficiently identify high-performing input regions under strict query constraints, which closely mirrors real-world machine learning problems such as:
+## Project overview
 
-hyperparameter tuning
-A/B testing
-simulation-based optimisation
-decision-making under uncertainty
-From a career perspective, this project strengthens key data science skills such as:
+The aim of this project was to maximise eight unknown black-box objective functions using only a limited number of input-output observations. The internal mathematical form of each function was hidden, so the optimisation process relied on iterative experimentation, pattern recognition and careful balancing of exploration and exploitation.
 
-optimisation with limited data
-iterative experimentation
-balancing exploration vs exploitation
-making decisions under uncertainty
-These are highly relevant for roles in machine learning, data science, and optimisation-driven systems.
+The functions varied in dimensionality from 2D to 8D. Each input value was constrained to the range `[0, 1]`, and each submitted query returned a single scalar objective value. The task was to identify high-performing regions as efficiently as possible under a restricted query budget.
 
-2. Inputs and Outputs
-Inputs
-Each function receives a vector of continuous values:
+## Non-technical summary
 
-x1-x2-x3-...-xn
-Where:
+This project explores how to make good decisions when the underlying system is unknown. I tested different input combinations for eight hidden functions and used the results to decide where to search next. The strategy evolved from broad exploration to more focused refinement around promising regions. This mirrors real-world machine learning work, where teams often need to tune models, experiments or systems with limited data and limited opportunities to test new ideas.
 
-each value is in the range [0, 1]
-each value is formatted to six decimal places
-dimensionality varies per function (from 2D to 8D)
-Example:
+## Repository structure
 
-0.345678-0.123456
-0.823456-0.712345-0.134567
-Outputs
-Each query returns:
+```text
+.
+├── README.md                  # Project overview and instructions
+├── bbo_capstone.ipynb          # Main notebook presenting the approach and results
+├── DataSheet.md                # Datasheet for the optimisation observations
+├── Model_Card.md               # Model card for the optimisation strategy
+├── Documentation.md            # Detailed project documentation
+├── functions.txt               # Function descriptions and sample application contexts
+├── requirements.txt            # Python dependencies
+└── LICENSE                     # MIT licence
+```
 
-a single scalar value
-representing the performance of the input
-Example:
+## Optimisation approach
 
-Function output: 368.5675
-Function output: -0.08109
-No additional information is provided (e.g. gradients, noise level, or function form).
+The project followed an iterative optimisation workflow:
 
-3. Challenge Objectives
-The main objective is to:
+1. **Initial exploration** – sample different areas of the search space to understand broad response patterns.
+2. **Local refinement** – focus on regions that produced strong results in earlier rounds.
+3. **Pattern-based search** – use previous query-output pairs to infer promising directions.
+4. **Exploration-exploitation balance** – avoid overfitting to one region while still exploiting strong signals.
+5. **Final consolidation** – compare trends across functions and document what worked best.
 
-Maximise the output of each black-box function using a limited number of queries
+The final strategy was human-guided and pattern-based rather than a fully automated Bayesian optimisation implementation. However, it used ideas from surrogate modelling, SVM-style region classification and local search to guide query selection.
 
-Key constraints:
-Only one query per function per iteration
-Very limited dataset (sequential learning)
-Unknown function structure
-High dimensionality (up to 8D)
-Core challenge:
-Efficiently decide where to sample next, balancing:
+## Key results
 
-Exploration → testing unknown or uncertain regions
-Exploitation → refining known high-performing regions
-The goal is not just to find good values, but to do so efficiently and systematically.
+The strongest improvements were observed on several higher-dimensional functions, especially Functions 4, 5, 6, 7 and 8. Function 5 showed the clearest improvement trend, increasing from an early score of approximately `368.57` to more than `1100` in later rounds. Function 8 also improved steadily across the project.
 
-4. Technical Approach
-This project follows an iterative optimisation strategy, evolving across multiple rounds.
+These results suggest that iterative local refinement can be highly effective when a function has a strong directional trend or a clear promising region. More irregular or noisy functions required a more cautious balance between exploration and exploitation.
 
-Week 1 – Initial Exploration
-Broad sampling of the input space
-Minimal assumptions about function behaviour
-Goal: understand general response patterns
-This stage focused on coverage rather than optimisation.
+## How to run the notebook
 
-Week 2 – Local Refinement
-Identified high-performing regions
-Applied small perturbations around strong candidates
-For example:
+Create a Python environment and install the required packages:
 
-Function 5 showed a very high output (~368), indicating a strong peak
-Function 8 showed moderate but consistent performance
-This led to:
+```bash
+pip install -r requirements.txt
+```
 
-exploitation for promising functions
-continued exploration for unclear ones
-Week 3 – Structured Strategy with SVM Perspective
-In this iteration, the approach became more structured and model-inspired.
+Then open the notebook:
 
-SVM-inspired thinking
-Instead of predicting exact outputs, the problem was partially reframed as:
+```bash
+jupyter notebook bbo_capstone.ipynb
+```
 
-classifying regions into high-performance vs low-performance
+The notebook contains the recorded optimisation history, summary tables and visualisations of score evolution across rounds.
 
-High outputs → “positive class”
-Low outputs → “negative class”
-A soft-margin SVM would be appropriate here due to:
+## Limitations
 
-noisy observations
-imperfect separation between regions
-Additionally, a kernel SVM (e.g. RBF) could capture:
+- The true objective functions were unknown.
+- The dataset is small because the challenge used a limited query budget.
+- The approach does not guarantee convergence to a global optimum.
+- Some functions may have been under-explored due to the restricted number of evaluations.
 
-non-linear boundaries
-sharp peaks (e.g. Function 5)
-While no explicit SVM model was trained, this perspective influenced query selection by:
+## Future work
 
-focusing on regions likely to belong to the “high-performance class”
-avoiding consistently poor regions
-Exploration vs Exploitation Strategy
-The current approach is a hybrid strategy:
+Future improvements could include:
 
-Exploitation
-Applied to strong signals:
-Function 5 → clear peak → local refinement
-Function 8 → improving trend → directional search
-Exploration
-Applied where signal is weak:
-Functions with near-zero or inconsistent outputs
-Includes:
-sampling new regions
-moving toward central areas
-diversifying inputs
-Key Strengths of the Approach
-Combines data-driven insights with intuition
-Adapts strategy per function, not globally
-Uses implicit modelling concepts (SVM, surrogate reasoning)
-Maintains a balanced exploration–exploitation trade-off
-Future Improvements
-Introduce Gaussian Process surrogate models
-Use acquisition functions (Expected Improvement, UCB)
-Combine:
-regression (value prediction)
-classification (region filtering via SVM)
-Analyse feature importance in higher dimensions
+- Gaussian Process surrogate models
+- Bayesian optimisation acquisition functions such as Expected Improvement or UCB
+- Ensemble surrogate models
+- Automated exploration-exploitation scheduling
+- More systematic hyperparameter tuning of the optimisation strategy
+
+## Author
+
+Istvan Takacs
+
